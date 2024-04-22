@@ -1,10 +1,85 @@
-import {Client, Hex, getAddress, zeroAddress} from 'viem';
+import {Client, Hex, createClient, defineChain, getAddress, http, zeroAddress} from 'viem';
 import {AddressInfo, Addresses} from '../configs/types';
 import {CHAIN_ID_CLIENT_MAP} from '@bgd-labs/js-utils';
 import {getStorageAt} from 'viem/actions';
 
+export const tinkle = /*#__PURE__*/ defineChain({
+  id: 31_337,
+  name: 'IoTeX',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Tinkle',
+    symbol: 'Tin',
+  },
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:8545'],
+      webSocket: ['wss://babel-api.mainnet.iotex.io'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'IoTeXScan',
+      url: 'https://iotexscan.io',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 22163670,
+    },
+  },
+})
+
+export const tanenbaum = /*#__PURE__*/ defineChain({
+  id: 57_000,
+  name: 'IoTeX',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Rollux Tanenbaum',
+    symbol: 'TSYS',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc-tanenbaum.rollux.com'],
+      webSocket: ['wss://rpc-tanenbaum.rollux.com'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'IoTeXScan',
+      url: 'https://rollux.tanenbaum.io',
+    },
+  },
+  contracts: {
+    
+  },
+})
+
+export function getClient(chainId: number): Client {
+  let client = CHAIN_ID_CLIENT_MAP[chainId];
+  if (!client) {
+    switch (chainId) {
+      case 31337:
+        client = createClient({
+          chain: tinkle,
+          transport: http('http://localhost:8545')
+        })
+        break;
+      case 57000:
+        client = createClient({
+          chain: tanenbaum,
+          transport: http('https://rpc-tanenbaum.rollux.com')
+        })
+        break;
+    }
+    
+  }
+  return client;
+}
+
 function getExplorerLink(chainId: number, address: Hex) {
-  const client = CHAIN_ID_CLIENT_MAP[chainId];
+  const client = getClient(chainId);
   return `${client.chain?.blockExplorers?.default.url}/address/${getAddress(address)}`;
 }
 

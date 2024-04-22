@@ -14,6 +14,7 @@ import {
   generateJsConstants,
   generateJsObject,
   generateSolidityConstants,
+  getClient,
   getImplementationStorageSlot,
   prefixWithGeneratedWarning,
   prefixWithPragma,
@@ -117,7 +118,7 @@ async function getAdditionalTokenInfo(
 export async function getPoolV3Addresses(
   pool: PoolConfig,
 ): Promise<PoolV3Addresses & {eModes: Map<number, string>}> {
-  const client = CHAIN_ID_CLIENT_MAP[pool.chainId];
+  const client = getClient(pool.chainId);
   const addressProviderContract = getContract({
     address: pool.POOL_ADDRESSES_PROVIDER,
     abi: ADDRESS_PROVIDER_V3_ABI,
